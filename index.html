@@ -1,1 +1,2433 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171923">
+<title>Lina Free v2｜AI English Coach</title>
 
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,"Microsoft JhengHei",sans-serif;
+  background:linear-gradient(135deg,#fff7f7,#f3efff);
+  color:#222;
+}
+.app{max-width:1100px;margin:auto;padding:18px}
+.top{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:15px
+}
+.badge{
+  background:#171923;color:#fff;
+  padding:8px 14px;border-radius:30px;font-weight:bold
+}
+.hero{
+  display:grid;grid-template-columns:1fr 1.15fr;
+  gap:18px
+}
+.panel{
+  background:white;border-radius:25px;padding:20px;
+  box-shadow:0 12px 35px rgba(0,0,0,.08)
+}
+.lina{text-align:center}
+.avatar{
+  width:min(100%,380px);
+  height:430px;
+  margin:auto;
+  border-radius:35px;
+  background:linear-gradient(#f7dada,#ddd6ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:150px;
+  position:relative;
+}
+.avatar.speaking{
+  animation:pulse .6s infinite alternate
+}
+.avatar:after{
+  content:"";
+  position:absolute;
+  bottom:115px;
+  width:32px;height:7px;
+  border-radius:50%;
+  background:#a54b55
+}
+.avatar.speaking:after{
+  animation:mouth .2s infinite alternate
+}
+@keyframes mouth{to{height:22px}}
+@keyframes pulse{to{transform:scale(1.01)}}
+
+h1{margin:12px 0 3px}
+.gray{color:#6b7280}
+.english{
+  font-size:22px;font-weight:bold;
+  margin:18px 0 6px
+}
+.chinese{color:#666;margin-bottom:15px}
+
+.controls{
+  display:flex;gap:8px;
+  justify-content:center;flex-wrap:wrap
+}
+button{
+  border:0;border-radius:14px;
+  padding:12px 15px;font-size:15px;cursor:pointer
+}
+.mic{background:#e84d61;color:white;font-weight:bold}
+.light{background:#eef1f6}
+.purple{background:#7c3aed;color:#fff;font-weight:bold;width:100%;margin-top:10px}
+
+.status{margin-top:12px;min-height:25px}
+
+.levels{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;margin-top:10px
+}
+.level{
+  text-align:left;background:#f6f7fa;
+  border:2px solid transparent
+}
+.level.active{border-color:#7c3aed}
+
+.lessons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  max-height:220px;
+  overflow:auto;
+  margin-top:10px
+}
+.lesson{background:#f1f2f5;font-size:13px}
+.lesson.active{background:#171923;color:white}
+
+.box{
+  background:#f7f8fa;
+  padding:13px;border-radius:14px;
+  margin-top:12px
+}
+.label{
+  color:#777;font-size:12px;
+  font-weight:bold;margin-bottom:5px
+}
+.answer{font-size:18px;font-weight:bold}
+.progress{
+  height:8px;background:#eee;
+  border-radius:20px;overflow:hidden;
+  margin:9px 0
+}
+.bar{height:100%;background:#171923;width:5%}
+
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .avatar{height:330px;max-width:310px;font-size:120px}
+  .app{padding:10px}
+  .panel{padding:15px}
+  .english{font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="top">
+  <div>
+    <b>Lina AI English Coach</b>
+    <div class="gray">免費英文口說陪練｜手機・電腦皆可使用</div>
+  </div>
+  <div class="badge">Lina Free v2</div>
+</div>
+
+<div class="hero">
+
+<section class="panel lina">
+
+<div id="avatar" class="avatar">👩🏻</div>
+
+<h1>Lina</h1>
+<div class="gray">你的 AI 英文口說陪練</div>
+
+<div id="linaEnglish" class="english">
+Hi! I'm Lina. Ready to practice English?
+</div>
+
+<div id="linaChinese" class="chinese">
+嗨！我是 Lina。準備好一起練英文了嗎？
+</div>
+
+<div class="controls">
+
+<button id="speakBtn" class="light">
+🔊 聽 Lina 說
+</button>
+
+<button id="micBtn" class="mic">
+🎤 按下說英文
+</button>
+
+<button id="hintBtn" class="light">
+💡 提示我怎麼說
+</button>
+
+</div>
+
+<div id="status" class="status">
+選擇課程後，按麥克風開始。
+</div>
+
+</section>
+
+<section class="panel">
+
+<b>學習進度</b>
+
+<div class="progress">
+<div id="progressBar" class="bar"></div>
+</div>
+
+<div id="progressText" class="gray">
+初級・第 1 / 20 課
+</div>
+
+<div id="levels" class="levels"></div>
+
+<div id="lessons" class="lessons"></div>
+
+<button id="freeBtn" class="purple">
+自由對話模式
+</button>
+
+<div class="box">
+<div class="label">你剛剛說的</div>
+<div id="userSaid" class="answer">—</div>
+</div>
+
+<div class="box">
+
+<div class="label">即時修正</div>
+
+<div>
+你剛剛說的 →
+<b id="original">—</b>
+</div>
+
+<div>
+正確版本 →
+<b id="correct">—</b>
+</div>
+
+<div>
+更自然版本 →
+<b id="natural">—</b>
+</div>
+
+<br>
+
+<div class="label">
+基礎發音回饋（依語音辨識結果）
+</div>
+
+<div id="pronunciation">—</div>
+
+</div>
+
+</section>
+
+</div>
+</div>
+
+<script>
+
+const course = [
+
+{
+name:"初級",
+lessons:[
+"機場報到","入境海關","叫計程車 / Grab","飯店入住","飯店需求",
+"早餐","餐廳點餐","咖啡店","購物","問路",
+"換錢","便利商店","海灘","預約行程","遺失物品",
+"藥局基本對話","聊天氣","自我介紹","日常生活","旅遊總複習"
+]
+},
+
+{
+name:"初中級",
+lessons:[
+"認識新朋友","酒吧自我介紹","開始聊天","自然稱讚",
+"詢問興趣","聊旅遊","交換聯絡方式","約下一次見面",
+"邀請喝咖啡","日常閒聊","喜歡的食物","音樂",
+"電影","週末計畫","家庭","朋友",
+"聊心情","約會聊天","泰國夜生活","社交總複習"
+]
+},
+
+{
+name:"中級",
+lessons:[
+"介紹工作","介紹公司","介紹產品","拜訪客戶",
+"商務午餐","安排時間","電話英文","說明問題",
+"提出要求","基本議價","客戶追蹤","交期",
+"品質問題","參觀工廠","開會","表達意見",
+"同意","不同意","感情聊天","工作總複習"
+]
+},
+
+{
+name:"中高級",
+lessons:[
+"深度聊天","人生價值觀","人生目標","感情關係",
+"文化差異","說故事","說服別人","進階談判",
+"簡報","商務社交","處理客訴","解決問題",
+"給建議","解釋原因","假設問題","未來計畫",
+"情緒表達","自然幽默","長時間對話","最終挑戰"
+]
+}
+
+];
+
+const practice = [
+
+[
+"Excuse me, where is the check-in counter?",
+"不好意思，請問報到櫃檯在哪裡？"
+],
+
+[
+"I'm here for a holiday in Thailand.",
+"我是來泰國度假的。"
+],
+
+[
+"Could you take me to this hotel, please?",
+"可以載我去這間飯店嗎？"
+],
+
+[
+"Hi, I have a reservation under my name.",
+"你好，我有用我的名字訂房。"
+],
+
+[
+"Could I get two more bottles of water?",
+"可以再給我兩瓶水嗎？"
+],
+
+[
+"I'd like to order this, please.",
+"我想點這個，謝謝。"
+],
+
+[
+"Hi, I'm from Taiwan. What's your name?",
+"嗨，我來自台灣。你叫什麼名字？"
+],
+
+[
+"What do you like to do in your free time?",
+"你平常有空喜歡做什麼？"
+],
+
+[
+"It was really nice talking to you.",
+"跟你聊天很開心。"
+],
+
+[
+"Would you like to have coffee sometime?",
+"有空要不要一起喝杯咖啡？"
+]
+
+];
+
+let levelIndex=0;
+let lessonIndex=0;
+let freeMode=false;
+
+const $=id=>document.getElementById(id);
+
+function render(){
+
+$("levels").innerHTML="";
+
+course.forEach((level,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="level "+(index===levelIndex?"active":"");
+
+btn.innerHTML="<b>"+level.name+"</b><br><small>20 課</small>";
+
+btn.onclick=()=>{
+levelIndex=index;
+lessonIndex=0;
+freeMode=false;
+render();
+};
+
+$("levels").appendChild(btn);
+
+});
+
+$("lessons").innerHTML="";
+
+course[levelIndex].lessons.forEach((lesson,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="lesson "+(index===lessonIndex?"active":"");
+
+btn.textContent=(index+1)+". "+lesson;
+
+btn.onclick=()=>{
+lessonIndex=index;
+freeMode=false;
+render();
+};
+
+$("lessons").appendChild(btn);
+
+});
+
+$("progressText").textContent=
+course[levelIndex].name+
+"・第 "+
+(lessonIndex+1)+
+" / 20 課";
+
+$("progressBar").style.width=
+((lessonIndex+1)/20*100)+"%";
+
+setLesson();
+
+}
+
+function setLesson(){
+
+let p=practice[(lessonIndex+levelIndex*3)%practice.length];
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"Tell me anything. I'll keep the conversation going.";
+
+$("linaChinese").textContent=
+"任何話題都可以，直接跟我聊。";
+
+}else{
+
+$("linaEnglish").textContent=p[0];
+$("linaChinese").textContent=p[1];
+
+}
+
+$("userSaid").textContent="—";
+$("original").textContent="—";
+$("correct").textContent="—";
+$("natural").textContent="—";
+$("pronunciation").textContent="—";
+
+}
+
+function speakLina(){
+
+speechSynthesis.cancel();
+
+const speech=
+new SpeechSynthesisUtterance(
+$("linaEnglish").textContent
+);
+
+speech.lang="en-US";
+speech.rate=.88;
+
+speech.onstart=()=>{
+$("avatar").classList.add("speaking");
+};
+
+speech.onend=()=>{
+$("avatar").classList.remove("speaking");
+};
+
+speechSynthesis.speak(speech);
+
+}
+
+$("speakBtn").onclick=speakLina;
+
+$("hintBtn").onclick=()=>{
+
+$("status").textContent=
+"提示：先慢慢跟著 Lina 的英文說一次。";
+
+speakLina();
+
+};
+
+$("freeBtn").onclick=()=>{
+
+freeMode=true;
+
+setLesson();
+
+$("status").textContent=
+"自由對話模式：直接說一句英文給 Lina。";
+
+speakLina();
+
+};
+
+const Recognition=
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+$("micBtn").onclick=async()=>{
+
+try{
+
+await navigator.mediaDevices.getUserMedia({
+audio:true
+});
+
+if(!Recognition){
+
+throw new Error(
+"此瀏覽器不支援語音辨識，請使用 Chrome。"
+);
+
+}
+
+const recognition=new Recognition();
+
+recognition.lang="en-US";
+recognition.interimResults=false;
+
+recognition.onstart=()=>{
+
+$("status").textContent=
+"🎤 正在聽你說英文…";
+
+$("micBtn").textContent=
+"🎤 聆聽中…";
+
+};
+
+recognition.onerror=e=>{
+
+$("status").textContent=
+"語音辨識錯誤："+e.error;
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onend=()=>{
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onresult=e=>{
+
+const text=
+e.results[0][0].transcript;
+
+giveFeedback(text);
+
+};
+
+recognition.start();
+
+}catch(error){
+
+$("status").textContent=
+"麥克風錯誤："+error.message;
+
+}
+
+};
+
+function giveFeedback(text){
+
+$("userSaid").textContent=text;
+$("original").textContent=text;
+
+let corrected=
+text.trim().replace(/\s+/g," ");
+
+corrected=
+corrected.charAt(0).toUpperCase()+
+corrected.slice(1);
+
+if(!/[.!?]$/.test(corrected)){
+corrected+=".";
+}
+
+$("correct").textContent=corrected;
+$("natural").textContent=corrected;
+
+$("pronunciation").textContent=
+"已成功辨識整句。若辨識結果和你原本想說的不同，請放慢速度再說一次。";
+
+$("status").textContent=
+"完成！Lina 已收到你的英文。";
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"That sounds interesting. Can you tell me a little more?";
+
+$("linaChinese").textContent=
+"聽起來很有意思，可以再多告訴我一點嗎？";
+
+}else{
+
+$("linaEnglish").textContent=
+"Good! Try it once more, a little more naturally.";
+
+$("linaChinese").textContent=
+"很好！再說一次，試著更自然一點。";
+
+}
+
+speakLina();
+
+}
+
+render();
+
+</script>
+
+</body>
+</html><!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171923">
+<title>Lina Free v2｜AI English Coach</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,"Microsoft JhengHei",sans-serif;
+  background:linear-gradient(135deg,#fff7f7,#f3efff);
+  color:#222;
+}
+.app{max-width:1100px;margin:auto;padding:18px}
+.top{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:15px
+}
+.badge{
+  background:#171923;color:#fff;
+  padding:8px 14px;border-radius:30px;font-weight:bold
+}
+.hero{
+  display:grid;grid-template-columns:1fr 1.15fr;
+  gap:18px
+}
+.panel{
+  background:white;border-radius:25px;padding:20px;
+  box-shadow:0 12px 35px rgba(0,0,0,.08)
+}
+.lina{text-align:center}
+.avatar{
+  width:min(100%,380px);
+  height:430px;
+  margin:auto;
+  border-radius:35px;
+  background:linear-gradient(#f7dada,#ddd6ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:150px;
+  position:relative;
+}
+.avatar.speaking{
+  animation:pulse .6s infinite alternate
+}
+.avatar:after{
+  content:"";
+  position:absolute;
+  bottom:115px;
+  width:32px;height:7px;
+  border-radius:50%;
+  background:#a54b55
+}
+.avatar.speaking:after{
+  animation:mouth .2s infinite alternate
+}
+@keyframes mouth{to{height:22px}}
+@keyframes pulse{to{transform:scale(1.01)}}
+
+h1{margin:12px 0 3px}
+.gray{color:#6b7280}
+.english{
+  font-size:22px;font-weight:bold;
+  margin:18px 0 6px
+}
+.chinese{color:#666;margin-bottom:15px}
+
+.controls{
+  display:flex;gap:8px;
+  justify-content:center;flex-wrap:wrap
+}
+button{
+  border:0;border-radius:14px;
+  padding:12px 15px;font-size:15px;cursor:pointer
+}
+.mic{background:#e84d61;color:white;font-weight:bold}
+.light{background:#eef1f6}
+.purple{background:#7c3aed;color:#fff;font-weight:bold;width:100%;margin-top:10px}
+
+.status{margin-top:12px;min-height:25px}
+
+.levels{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;margin-top:10px
+}
+.level{
+  text-align:left;background:#f6f7fa;
+  border:2px solid transparent
+}
+.level.active{border-color:#7c3aed}
+
+.lessons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  max-height:220px;
+  overflow:auto;
+  margin-top:10px
+}
+.lesson{background:#f1f2f5;font-size:13px}
+.lesson.active{background:#171923;color:white}
+
+.box{
+  background:#f7f8fa;
+  padding:13px;border-radius:14px;
+  margin-top:12px
+}
+.label{
+  color:#777;font-size:12px;
+  font-weight:bold;margin-bottom:5px
+}
+.answer{font-size:18px;font-weight:bold}
+.progress{
+  height:8px;background:#eee;
+  border-radius:20px;overflow:hidden;
+  margin:9px 0
+}
+.bar{height:100%;background:#171923;width:5%}
+
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .avatar{height:330px;max-width:310px;font-size:120px}
+  .app{padding:10px}
+  .panel{padding:15px}
+  .english{font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="top">
+  <div>
+    <b>Lina AI English Coach</b>
+    <div class="gray">免費英文口說陪練｜手機・電腦皆可使用</div>
+  </div>
+  <div class="badge">Lina Free v2</div>
+</div>
+
+<div class="hero">
+
+<section class="panel lina">
+
+<div id="avatar" class="avatar">👩🏻</div>
+
+<h1>Lina</h1>
+<div class="gray">你的 AI 英文口說陪練</div>
+
+<div id="linaEnglish" class="english">
+Hi! I'm Lina. Ready to practice English?
+</div>
+
+<div id="linaChinese" class="chinese">
+嗨！我是 Lina。準備好一起練英文了嗎？
+</div>
+
+<div class="controls">
+
+<button id="speakBtn" class="light">
+🔊 聽 Lina 說
+</button>
+
+<button id="micBtn" class="mic">
+🎤 按下說英文
+</button>
+
+<button id="hintBtn" class="light">
+💡 提示我怎麼說
+</button>
+
+</div>
+
+<div id="status" class="status">
+選擇課程後，按麥克風開始。
+</div>
+
+</section>
+
+<section class="panel">
+
+<b>學習進度</b>
+
+<div class="progress">
+<div id="progressBar" class="bar"></div>
+</div>
+
+<div id="progressText" class="gray">
+初級・第 1 / 20 課
+</div>
+
+<div id="levels" class="levels"></div>
+
+<div id="lessons" class="lessons"></div>
+
+<button id="freeBtn" class="purple">
+自由對話模式
+</button>
+
+<div class="box">
+<div class="label">你剛剛說的</div>
+<div id="userSaid" class="answer">—</div>
+</div>
+
+<div class="box">
+
+<div class="label">即時修正</div>
+
+<div>
+你剛剛說的 →
+<b id="original">—</b>
+</div>
+
+<div>
+正確版本 →
+<b id="correct">—</b>
+</div>
+
+<div>
+更自然版本 →
+<b id="natural">—</b>
+</div>
+
+<br>
+
+<div class="label">
+基礎發音回饋（依語音辨識結果）
+</div>
+
+<div id="pronunciation">—</div>
+
+</div>
+
+</section>
+
+</div>
+</div>
+
+<script>
+
+const course = [
+
+{
+name:"初級",
+lessons:[
+"機場報到","入境海關","叫計程車 / Grab","飯店入住","飯店需求",
+"早餐","餐廳點餐","咖啡店","購物","問路",
+"換錢","便利商店","海灘","預約行程","遺失物品",
+"藥局基本對話","聊天氣","自我介紹","日常生活","旅遊總複習"
+]
+},
+
+{
+name:"初中級",
+lessons:[
+"認識新朋友","酒吧自我介紹","開始聊天","自然稱讚",
+"詢問興趣","聊旅遊","交換聯絡方式","約下一次見面",
+"邀請喝咖啡","日常閒聊","喜歡的食物","音樂",
+"電影","週末計畫","家庭","朋友",
+"聊心情","約會聊天","泰國夜生活","社交總複習"
+]
+},
+
+{
+name:"中級",
+lessons:[
+"介紹工作","介紹公司","介紹產品","拜訪客戶",
+"商務午餐","安排時間","電話英文","說明問題",
+"提出要求","基本議價","客戶追蹤","交期",
+"品質問題","參觀工廠","開會","表達意見",
+"同意","不同意","感情聊天","工作總複習"
+]
+},
+
+{
+name:"中高級",
+lessons:[
+"深度聊天","人生價值觀","人生目標","感情關係",
+"文化差異","說故事","說服別人","進階談判",
+"簡報","商務社交","處理客訴","解決問題",
+"給建議","解釋原因","假設問題","未來計畫",
+"情緒表達","自然幽默","長時間對話","最終挑戰"
+]
+}
+
+];
+
+const practice = [
+
+[
+"Excuse me, where is the check-in counter?",
+"不好意思，請問報到櫃檯在哪裡？"
+],
+
+[
+"I'm here for a holiday in Thailand.",
+"我是來泰國度假的。"
+],
+
+[
+"Could you take me to this hotel, please?",
+"可以載我去這間飯店嗎？"
+],
+
+[
+"Hi, I have a reservation under my name.",
+"你好，我有用我的名字訂房。"
+],
+
+[
+"Could I get two more bottles of water?",
+"可以再給我兩瓶水嗎？"
+],
+
+[
+"I'd like to order this, please.",
+"我想點這個，謝謝。"
+],
+
+[
+"Hi, I'm from Taiwan. What's your name?",
+"嗨，我來自台灣。你叫什麼名字？"
+],
+
+[
+"What do you like to do in your free time?",
+"你平常有空喜歡做什麼？"
+],
+
+[
+"It was really nice talking to you.",
+"跟你聊天很開心。"
+],
+
+[
+"Would you like to have coffee sometime?",
+"有空要不要一起喝杯咖啡？"
+]
+
+];
+
+let levelIndex=0;
+let lessonIndex=0;
+let freeMode=false;
+
+const $=id=>document.getElementById(id);
+
+function render(){
+
+$("levels").innerHTML="";
+
+course.forEach((level,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="level "+(index===levelIndex?"active":"");
+
+btn.innerHTML="<b>"+level.name+"</b><br><small>20 課</small>";
+
+btn.onclick=()=>{
+levelIndex=index;
+lessonIndex=0;
+freeMode=false;
+render();
+};
+
+$("levels").appendChild(btn);
+
+});
+
+$("lessons").innerHTML="";
+
+course[levelIndex].lessons.forEach((lesson,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="lesson "+(index===lessonIndex?"active":"");
+
+btn.textContent=(index+1)+". "+lesson;
+
+btn.onclick=()=>{
+lessonIndex=index;
+freeMode=false;
+render();
+};
+
+$("lessons").appendChild(btn);
+
+});
+
+$("progressText").textContent=
+course[levelIndex].name+
+"・第 "+
+(lessonIndex+1)+
+" / 20 課";
+
+$("progressBar").style.width=
+((lessonIndex+1)/20*100)+"%";
+
+setLesson();
+
+}
+
+function setLesson(){
+
+let p=practice[(lessonIndex+levelIndex*3)%practice.length];
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"Tell me anything. I'll keep the conversation going.";
+
+$("linaChinese").textContent=
+"任何話題都可以，直接跟我聊。";
+
+}else{
+
+$("linaEnglish").textContent=p[0];
+$("linaChinese").textContent=p[1];
+
+}
+
+$("userSaid").textContent="—";
+$("original").textContent="—";
+$("correct").textContent="—";
+$("natural").textContent="—";
+$("pronunciation").textContent="—";
+
+}
+
+function speakLina(){
+
+speechSynthesis.cancel();
+
+const speech=
+new SpeechSynthesisUtterance(
+$("linaEnglish").textContent
+);
+
+speech.lang="en-US";
+speech.rate=.88;
+
+speech.onstart=()=>{
+$("avatar").classList.add("speaking");
+};
+
+speech.onend=()=>{
+$("avatar").classList.remove("speaking");
+};
+
+speechSynthesis.speak(speech);
+
+}
+
+$("speakBtn").onclick=speakLina;
+
+$("hintBtn").onclick=()=>{
+
+$("status").textContent=
+"提示：先慢慢跟著 Lina 的英文說一次。";
+
+speakLina();
+
+};
+
+$("freeBtn").onclick=()=>{
+
+freeMode=true;
+
+setLesson();
+
+$("status").textContent=
+"自由對話模式：直接說一句英文給 Lina。";
+
+speakLina();
+
+};
+
+const Recognition=
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+$("micBtn").onclick=async()=>{
+
+try{
+
+await navigator.mediaDevices.getUserMedia({
+audio:true
+});
+
+if(!Recognition){
+
+throw new Error(
+"此瀏覽器不支援語音辨識，請使用 Chrome。"
+);
+
+}
+
+const recognition=new Recognition();
+
+recognition.lang="en-US";
+recognition.interimResults=false;
+
+recognition.onstart=()=>{
+
+$("status").textContent=
+"🎤 正在聽你說英文…";
+
+$("micBtn").textContent=
+"🎤 聆聽中…";
+
+};
+
+recognition.onerror=e=>{
+
+$("status").textContent=
+"語音辨識錯誤："+e.error;
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onend=()=>{
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onresult=e=>{
+
+const text=
+e.results[0][0].transcript;
+
+giveFeedback(text);
+
+};
+
+recognition.start();
+
+}catch(error){
+
+$("status").textContent=
+"麥克風錯誤："+error.message;
+
+}
+
+};
+
+function giveFeedback(text){
+
+$("userSaid").textContent=text;
+$("original").textContent=text;
+
+let corrected=
+text.trim().replace(/\s+/g," ");
+
+corrected=
+corrected.charAt(0).toUpperCase()+
+corrected.slice(1);
+
+if(!/[.!?]$/.test(corrected)){
+corrected+=".";
+}
+
+$("correct").textContent=corrected;
+$("natural").textContent=corrected;
+
+$("pronunciation").textContent=
+"已成功辨識整句。若辨識結果和你原本想說的不同，請放慢速度再說一次。";
+
+$("status").textContent=
+"完成！Lina 已收到你的英文。";
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"That sounds interesting. Can you tell me a little more?";
+
+$("linaChinese").textContent=
+"聽起來很有意思，可以再多告訴我一點嗎？";
+
+}else{
+
+$("linaEnglish").textContent=
+"Good! Try it once more, a little more naturally.";
+
+$("linaChinese").textContent=
+"很好！再說一次，試著更自然一點。";
+
+}
+
+speakLina();
+
+}
+
+render();
+
+</script>
+
+</body>
+</html><!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171923">
+<title>Lina Free v2｜AI English Coach</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,"Microsoft JhengHei",sans-serif;
+  background:linear-gradient(135deg,#fff7f7,#f3efff);
+  color:#222;
+}
+.app{max-width:1100px;margin:auto;padding:18px}
+.top{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:15px
+}
+.badge{
+  background:#171923;color:#fff;
+  padding:8px 14px;border-radius:30px;font-weight:bold
+}
+.hero{
+  display:grid;grid-template-columns:1fr 1.15fr;
+  gap:18px
+}
+.panel{
+  background:white;border-radius:25px;padding:20px;
+  box-shadow:0 12px 35px rgba(0,0,0,.08)
+}
+.lina{text-align:center}
+.avatar{
+  width:min(100%,380px);
+  height:430px;
+  margin:auto;
+  border-radius:35px;
+  background:linear-gradient(#f7dada,#ddd6ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:150px;
+  position:relative;
+}
+.avatar.speaking{
+  animation:pulse .6s infinite alternate
+}
+.avatar:after{
+  content:"";
+  position:absolute;
+  bottom:115px;
+  width:32px;height:7px;
+  border-radius:50%;
+  background:#a54b55
+}
+.avatar.speaking:after{
+  animation:mouth .2s infinite alternate
+}
+@keyframes mouth{to{height:22px}}
+@keyframes pulse{to{transform:scale(1.01)}}
+
+h1{margin:12px 0 3px}
+.gray{color:#6b7280}
+.english{
+  font-size:22px;font-weight:bold;
+  margin:18px 0 6px
+}
+.chinese{color:#666;margin-bottom:15px}
+
+.controls{
+  display:flex;gap:8px;
+  justify-content:center;flex-wrap:wrap
+}
+button{
+  border:0;border-radius:14px;
+  padding:12px 15px;font-size:15px;cursor:pointer
+}
+.mic{background:#e84d61;color:white;font-weight:bold}
+.light{background:#eef1f6}
+.purple{background:#7c3aed;color:#fff;font-weight:bold;width:100%;margin-top:10px}
+
+.status{margin-top:12px;min-height:25px}
+
+.levels{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;margin-top:10px
+}
+.level{
+  text-align:left;background:#f6f7fa;
+  border:2px solid transparent
+}
+.level.active{border-color:#7c3aed}
+
+.lessons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  max-height:220px;
+  overflow:auto;
+  margin-top:10px
+}
+.lesson{background:#f1f2f5;font-size:13px}
+.lesson.active{background:#171923;color:white}
+
+.box{
+  background:#f7f8fa;
+  padding:13px;border-radius:14px;
+  margin-top:12px
+}
+.label{
+  color:#777;font-size:12px;
+  font-weight:bold;margin-bottom:5px
+}
+.answer{font-size:18px;font-weight:bold}
+.progress{
+  height:8px;background:#eee;
+  border-radius:20px;overflow:hidden;
+  margin:9px 0
+}
+.bar{height:100%;background:#171923;width:5%}
+
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .avatar{height:330px;max-width:310px;font-size:120px}
+  .app{padding:10px}
+  .panel{padding:15px}
+  .english{font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="top">
+  <div>
+    <b>Lina AI English Coach</b>
+    <div class="gray">免費英文口說陪練｜手機・電腦皆可使用</div>
+  </div>
+  <div class="badge">Lina Free v2</div>
+</div>
+
+<div class="hero">
+
+<section class="panel lina">
+
+<div id="avatar" class="avatar">👩🏻</div>
+
+<h1>Lina</h1>
+<div class="gray">你的 AI 英文口說陪練</div>
+
+<div id="linaEnglish" class="english">
+Hi! I'm Lina. Ready to practice English?
+</div>
+
+<div id="linaChinese" class="chinese">
+嗨！我是 Lina。準備好一起練英文了嗎？
+</div>
+
+<div class="controls">
+
+<button id="speakBtn" class="light">
+🔊 聽 Lina 說
+</button>
+
+<button id="micBtn" class="mic">
+🎤 按下說英文
+</button>
+
+<button id="hintBtn" class="light">
+💡 提示我怎麼說
+</button>
+
+</div>
+
+<div id="status" class="status">
+選擇課程後，按麥克風開始。
+</div>
+
+</section>
+
+<section class="panel">
+
+<b>學習進度</b>
+
+<div class="progress">
+<div id="progressBar" class="bar"></div>
+</div>
+
+<div id="progressText" class="gray">
+初級・第 1 / 20 課
+</div>
+
+<div id="levels" class="levels"></div>
+
+<div id="lessons" class="lessons"></div>
+
+<button id="freeBtn" class="purple">
+自由對話模式
+</button>
+
+<div class="box">
+<div class="label">你剛剛說的</div>
+<div id="userSaid" class="answer">—</div>
+</div>
+
+<div class="box">
+
+<div class="label">即時修正</div>
+
+<div>
+你剛剛說的 →
+<b id="original">—</b>
+</div>
+
+<div>
+正確版本 →
+<b id="correct">—</b>
+</div>
+
+<div>
+更自然版本 →
+<b id="natural">—</b>
+</div>
+
+<br>
+
+<div class="label">
+基礎發音回饋（依語音辨識結果）
+</div>
+
+<div id="pronunciation">—</div>
+
+</div>
+
+</section>
+
+</div>
+</div>
+
+<script>
+
+const course = [
+
+{
+name:"初級",
+lessons:[
+"機場報到","入境海關","叫計程車 / Grab","飯店入住","飯店需求",
+"早餐","餐廳點餐","咖啡店","購物","問路",
+"換錢","便利商店","海灘","預約行程","遺失物品",
+"藥局基本對話","聊天氣","自我介紹","日常生活","旅遊總複習"
+]
+},
+
+{
+name:"初中級",
+lessons:[
+"認識新朋友","酒吧自我介紹","開始聊天","自然稱讚",
+"詢問興趣","聊旅遊","交換聯絡方式","約下一次見面",
+"邀請喝咖啡","日常閒聊","喜歡的食物","音樂",
+"電影","週末計畫","家庭","朋友",
+"聊心情","約會聊天","泰國夜生活","社交總複習"
+]
+},
+
+{
+name:"中級",
+lessons:[
+"介紹工作","介紹公司","介紹產品","拜訪客戶",
+"商務午餐","安排時間","電話英文","說明問題",
+"提出要求","基本議價","客戶追蹤","交期",
+"品質問題","參觀工廠","開會","表達意見",
+"同意","不同意","感情聊天","工作總複習"
+]
+},
+
+{
+name:"中高級",
+lessons:[
+"深度聊天","人生價值觀","人生目標","感情關係",
+"文化差異","說故事","說服別人","進階談判",
+"簡報","商務社交","處理客訴","解決問題",
+"給建議","解釋原因","假設問題","未來計畫",
+"情緒表達","自然幽默","長時間對話","最終挑戰"
+]
+}
+
+];
+
+const practice = [
+
+[
+"Excuse me, where is the check-in counter?",
+"不好意思，請問報到櫃檯在哪裡？"
+],
+
+[
+"I'm here for a holiday in Thailand.",
+"我是來泰國度假的。"
+],
+
+[
+"Could you take me to this hotel, please?",
+"可以載我去這間飯店嗎？"
+],
+
+[
+"Hi, I have a reservation under my name.",
+"你好，我有用我的名字訂房。"
+],
+
+[
+"Could I get two more bottles of water?",
+"可以再給我兩瓶水嗎？"
+],
+
+[
+"I'd like to order this, please.",
+"我想點這個，謝謝。"
+],
+
+[
+"Hi, I'm from Taiwan. What's your name?",
+"嗨，我來自台灣。你叫什麼名字？"
+],
+
+[
+"What do you like to do in your free time?",
+"你平常有空喜歡做什麼？"
+],
+
+[
+"It was really nice talking to you.",
+"跟你聊天很開心。"
+],
+
+[
+"Would you like to have coffee sometime?",
+"有空要不要一起喝杯咖啡？"
+]
+
+];
+
+let levelIndex=0;
+let lessonIndex=0;
+let freeMode=false;
+
+const $=id=>document.getElementById(id);
+
+function render(){
+
+$("levels").innerHTML="";
+
+course.forEach((level,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="level "+(index===levelIndex?"active":"");
+
+btn.innerHTML="<b>"+level.name+"</b><br><small>20 課</small>";
+
+btn.onclick=()=>{
+levelIndex=index;
+lessonIndex=0;
+freeMode=false;
+render();
+};
+
+$("levels").appendChild(btn);
+
+});
+
+$("lessons").innerHTML="";
+
+course[levelIndex].lessons.forEach((lesson,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="lesson "+(index===lessonIndex?"active":"");
+
+btn.textContent=(index+1)+". "+lesson;
+
+btn.onclick=()=>{
+lessonIndex=index;
+freeMode=false;
+render();
+};
+
+$("lessons").appendChild(btn);
+
+});
+
+$("progressText").textContent=
+course[levelIndex].name+
+"・第 "+
+(lessonIndex+1)+
+" / 20 課";
+
+$("progressBar").style.width=
+((lessonIndex+1)/20*100)+"%";
+
+setLesson();
+
+}
+
+function setLesson(){
+
+let p=practice[(lessonIndex+levelIndex*3)%practice.length];
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"Tell me anything. I'll keep the conversation going.";
+
+$("linaChinese").textContent=
+"任何話題都可以，直接跟我聊。";
+
+}else{
+
+$("linaEnglish").textContent=p[0];
+$("linaChinese").textContent=p[1];
+
+}
+
+$("userSaid").textContent="—";
+$("original").textContent="—";
+$("correct").textContent="—";
+$("natural").textContent="—";
+$("pronunciation").textContent="—";
+
+}
+
+function speakLina(){
+
+speechSynthesis.cancel();
+
+const speech=
+new SpeechSynthesisUtterance(
+$("linaEnglish").textContent
+);
+
+speech.lang="en-US";
+speech.rate=.88;
+
+speech.onstart=()=>{
+$("avatar").classList.add("speaking");
+};
+
+speech.onend=()=>{
+$("avatar").classList.remove("speaking");
+};
+
+speechSynthesis.speak(speech);
+
+}
+
+$("speakBtn").onclick=speakLina;
+
+$("hintBtn").onclick=()=>{
+
+$("status").textContent=
+"提示：先慢慢跟著 Lina 的英文說一次。";
+
+speakLina();
+
+};
+
+$("freeBtn").onclick=()=>{
+
+freeMode=true;
+
+setLesson();
+
+$("status").textContent=
+"自由對話模式：直接說一句英文給 Lina。";
+
+speakLina();
+
+};
+
+const Recognition=
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+$("micBtn").onclick=async()=>{
+
+try{
+
+await navigator.mediaDevices.getUserMedia({
+audio:true
+});
+
+if(!Recognition){
+
+throw new Error(
+"此瀏覽器不支援語音辨識，請使用 Chrome。"
+);
+
+}
+
+const recognition=new Recognition();
+
+recognition.lang="en-US";
+recognition.interimResults=false;
+
+recognition.onstart=()=>{
+
+$("status").textContent=
+"🎤 正在聽你說英文…";
+
+$("micBtn").textContent=
+"🎤 聆聽中…";
+
+};
+
+recognition.onerror=e=>{
+
+$("status").textContent=
+"語音辨識錯誤："+e.error;
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onend=()=>{
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onresult=e=>{
+
+const text=
+e.results[0][0].transcript;
+
+giveFeedback(text);
+
+};
+
+recognition.start();
+
+}catch(error){
+
+$("status").textContent=
+"麥克風錯誤："+error.message;
+
+}
+
+};
+
+function giveFeedback(text){
+
+$("userSaid").textContent=text;
+$("original").textContent=text;
+
+let corrected=
+text.trim().replace(/\s+/g," ");
+
+corrected=
+corrected.charAt(0).toUpperCase()+
+corrected.slice(1);
+
+if(!/[.!?]$/.test(corrected)){
+corrected+=".";
+}
+
+$("correct").textContent=corrected;
+$("natural").textContent=corrected;
+
+$("pronunciation").textContent=
+"已成功辨識整句。若辨識結果和你原本想說的不同，請放慢速度再說一次。";
+
+$("status").textContent=
+"完成！Lina 已收到你的英文。";
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"That sounds interesting. Can you tell me a little more?";
+
+$("linaChinese").textContent=
+"聽起來很有意思，可以再多告訴我一點嗎？";
+
+}else{
+
+$("linaEnglish").textContent=
+"Good! Try it once more, a little more naturally.";
+
+$("linaChinese").textContent=
+"很好！再說一次，試著更自然一點。";
+
+}
+
+speakLina();
+
+}
+
+render();
+
+</script>
+
+</body>
+</html><!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171923">
+<title>Lina Free v2｜AI English Coach</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,"Microsoft JhengHei",sans-serif;
+  background:linear-gradient(135deg,#fff7f7,#f3efff);
+  color:#222;
+}
+.app{max-width:1100px;margin:auto;padding:18px}
+.top{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:15px
+}
+.badge{
+  background:#171923;color:#fff;
+  padding:8px 14px;border-radius:30px;font-weight:bold
+}
+.hero{
+  display:grid;grid-template-columns:1fr 1.15fr;
+  gap:18px
+}
+.panel{
+  background:white;border-radius:25px;padding:20px;
+  box-shadow:0 12px 35px rgba(0,0,0,.08)
+}
+.lina{text-align:center}
+.avatar{
+  width:min(100%,380px);
+  height:430px;
+  margin:auto;
+  border-radius:35px;
+  background:linear-gradient(#f7dada,#ddd6ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:150px;
+  position:relative;
+}
+.avatar.speaking{
+  animation:pulse .6s infinite alternate
+}
+.avatar:after{
+  content:"";
+  position:absolute;
+  bottom:115px;
+  width:32px;height:7px;
+  border-radius:50%;
+  background:#a54b55
+}
+.avatar.speaking:after{
+  animation:mouth .2s infinite alternate
+}
+@keyframes mouth{to{height:22px}}
+@keyframes pulse{to{transform:scale(1.01)}}
+
+h1{margin:12px 0 3px}
+.gray{color:#6b7280}
+.english{
+  font-size:22px;font-weight:bold;
+  margin:18px 0 6px
+}
+.chinese{color:#666;margin-bottom:15px}
+
+.controls{
+  display:flex;gap:8px;
+  justify-content:center;flex-wrap:wrap
+}
+button{
+  border:0;border-radius:14px;
+  padding:12px 15px;font-size:15px;cursor:pointer
+}
+.mic{background:#e84d61;color:white;font-weight:bold}
+.light{background:#eef1f6}
+.purple{background:#7c3aed;color:#fff;font-weight:bold;width:100%;margin-top:10px}
+
+.status{margin-top:12px;min-height:25px}
+
+.levels{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;margin-top:10px
+}
+.level{
+  text-align:left;background:#f6f7fa;
+  border:2px solid transparent
+}
+.level.active{border-color:#7c3aed}
+
+.lessons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  max-height:220px;
+  overflow:auto;
+  margin-top:10px
+}
+.lesson{background:#f1f2f5;font-size:13px}
+.lesson.active{background:#171923;color:white}
+
+.box{
+  background:#f7f8fa;
+  padding:13px;border-radius:14px;
+  margin-top:12px
+}
+.label{
+  color:#777;font-size:12px;
+  font-weight:bold;margin-bottom:5px
+}
+.answer{font-size:18px;font-weight:bold}
+.progress{
+  height:8px;background:#eee;
+  border-radius:20px;overflow:hidden;
+  margin:9px 0
+}
+.bar{height:100%;background:#171923;width:5%}
+
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr}
+  .avatar{height:330px;max-width:310px;font-size:120px}
+  .app{padding:10px}
+  .panel{padding:15px}
+  .english{font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="top">
+  <div>
+    <b>Lina AI English Coach</b>
+    <div class="gray">免費英文口說陪練｜手機・電腦皆可使用</div>
+  </div>
+  <div class="badge">Lina Free v2</div>
+</div>
+
+<div class="hero">
+
+<section class="panel lina">
+
+<div id="avatar" class="avatar">👩🏻</div>
+
+<h1>Lina</h1>
+<div class="gray">你的 AI 英文口說陪練</div>
+
+<div id="linaEnglish" class="english">
+Hi! I'm Lina. Ready to practice English?
+</div>
+
+<div id="linaChinese" class="chinese">
+嗨！我是 Lina。準備好一起練英文了嗎？
+</div>
+
+<div class="controls">
+
+<button id="speakBtn" class="light">
+🔊 聽 Lina 說
+</button>
+
+<button id="micBtn" class="mic">
+🎤 按下說英文
+</button>
+
+<button id="hintBtn" class="light">
+💡 提示我怎麼說
+</button>
+
+</div>
+
+<div id="status" class="status">
+選擇課程後，按麥克風開始。
+</div>
+
+</section>
+
+<section class="panel">
+
+<b>學習進度</b>
+
+<div class="progress">
+<div id="progressBar" class="bar"></div>
+</div>
+
+<div id="progressText" class="gray">
+初級・第 1 / 20 課
+</div>
+
+<div id="levels" class="levels"></div>
+
+<div id="lessons" class="lessons"></div>
+
+<button id="freeBtn" class="purple">
+自由對話模式
+</button>
+
+<div class="box">
+<div class="label">你剛剛說的</div>
+<div id="userSaid" class="answer">—</div>
+</div>
+
+<div class="box">
+
+<div class="label">即時修正</div>
+
+<div>
+你剛剛說的 →
+<b id="original">—</b>
+</div>
+
+<div>
+正確版本 →
+<b id="correct">—</b>
+</div>
+
+<div>
+更自然版本 →
+<b id="natural">—</b>
+</div>
+
+<br>
+
+<div class="label">
+基礎發音回饋（依語音辨識結果）
+</div>
+
+<div id="pronunciation">—</div>
+
+</div>
+
+</section>
+
+</div>
+</div>
+
+<script>
+
+const course = [
+
+{
+name:"初級",
+lessons:[
+"機場報到","入境海關","叫計程車 / Grab","飯店入住","飯店需求",
+"早餐","餐廳點餐","咖啡店","購物","問路",
+"換錢","便利商店","海灘","預約行程","遺失物品",
+"藥局基本對話","聊天氣","自我介紹","日常生活","旅遊總複習"
+]
+},
+
+{
+name:"初中級",
+lessons:[
+"認識新朋友","酒吧自我介紹","開始聊天","自然稱讚",
+"詢問興趣","聊旅遊","交換聯絡方式","約下一次見面",
+"邀請喝咖啡","日常閒聊","喜歡的食物","音樂",
+"電影","週末計畫","家庭","朋友",
+"聊心情","約會聊天","泰國夜生活","社交總複習"
+]
+},
+
+{
+name:"中級",
+lessons:[
+"介紹工作","介紹公司","介紹產品","拜訪客戶",
+"商務午餐","安排時間","電話英文","說明問題",
+"提出要求","基本議價","客戶追蹤","交期",
+"品質問題","參觀工廠","開會","表達意見",
+"同意","不同意","感情聊天","工作總複習"
+]
+},
+
+{
+name:"中高級",
+lessons:[
+"深度聊天","人生價值觀","人生目標","感情關係",
+"文化差異","說故事","說服別人","進階談判",
+"簡報","商務社交","處理客訴","解決問題",
+"給建議","解釋原因","假設問題","未來計畫",
+"情緒表達","自然幽默","長時間對話","最終挑戰"
+]
+}
+
+];
+
+const practice = [
+
+[
+"Excuse me, where is the check-in counter?",
+"不好意思，請問報到櫃檯在哪裡？"
+],
+
+[
+"I'm here for a holiday in Thailand.",
+"我是來泰國度假的。"
+],
+
+[
+"Could you take me to this hotel, please?",
+"可以載我去這間飯店嗎？"
+],
+
+[
+"Hi, I have a reservation under my name.",
+"你好，我有用我的名字訂房。"
+],
+
+[
+"Could I get two more bottles of water?",
+"可以再給我兩瓶水嗎？"
+],
+
+[
+"I'd like to order this, please.",
+"我想點這個，謝謝。"
+],
+
+[
+"Hi, I'm from Taiwan. What's your name?",
+"嗨，我來自台灣。你叫什麼名字？"
+],
+
+[
+"What do you like to do in your free time?",
+"你平常有空喜歡做什麼？"
+],
+
+[
+"It was really nice talking to you.",
+"跟你聊天很開心。"
+],
+
+[
+"Would you like to have coffee sometime?",
+"有空要不要一起喝杯咖啡？"
+]
+
+];
+
+let levelIndex=0;
+let lessonIndex=0;
+let freeMode=false;
+
+const $=id=>document.getElementById(id);
+
+function render(){
+
+$("levels").innerHTML="";
+
+course.forEach((level,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="level "+(index===levelIndex?"active":"");
+
+btn.innerHTML="<b>"+level.name+"</b><br><small>20 課</small>";
+
+btn.onclick=()=>{
+levelIndex=index;
+lessonIndex=0;
+freeMode=false;
+render();
+};
+
+$("levels").appendChild(btn);
+
+});
+
+$("lessons").innerHTML="";
+
+course[levelIndex].lessons.forEach((lesson,index)=>{
+
+const btn=document.createElement("button");
+
+btn.className="lesson "+(index===lessonIndex?"active":"");
+
+btn.textContent=(index+1)+". "+lesson;
+
+btn.onclick=()=>{
+lessonIndex=index;
+freeMode=false;
+render();
+};
+
+$("lessons").appendChild(btn);
+
+});
+
+$("progressText").textContent=
+course[levelIndex].name+
+"・第 "+
+(lessonIndex+1)+
+" / 20 課";
+
+$("progressBar").style.width=
+((lessonIndex+1)/20*100)+"%";
+
+setLesson();
+
+}
+
+function setLesson(){
+
+let p=practice[(lessonIndex+levelIndex*3)%practice.length];
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"Tell me anything. I'll keep the conversation going.";
+
+$("linaChinese").textContent=
+"任何話題都可以，直接跟我聊。";
+
+}else{
+
+$("linaEnglish").textContent=p[0];
+$("linaChinese").textContent=p[1];
+
+}
+
+$("userSaid").textContent="—";
+$("original").textContent="—";
+$("correct").textContent="—";
+$("natural").textContent="—";
+$("pronunciation").textContent="—";
+
+}
+
+function speakLina(){
+
+speechSynthesis.cancel();
+
+const speech=
+new SpeechSynthesisUtterance(
+$("linaEnglish").textContent
+);
+
+speech.lang="en-US";
+speech.rate=.88;
+
+speech.onstart=()=>{
+$("avatar").classList.add("speaking");
+};
+
+speech.onend=()=>{
+$("avatar").classList.remove("speaking");
+};
+
+speechSynthesis.speak(speech);
+
+}
+
+$("speakBtn").onclick=speakLina;
+
+$("hintBtn").onclick=()=>{
+
+$("status").textContent=
+"提示：先慢慢跟著 Lina 的英文說一次。";
+
+speakLina();
+
+};
+
+$("freeBtn").onclick=()=>{
+
+freeMode=true;
+
+setLesson();
+
+$("status").textContent=
+"自由對話模式：直接說一句英文給 Lina。";
+
+speakLina();
+
+};
+
+const Recognition=
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+$("micBtn").onclick=async()=>{
+
+try{
+
+await navigator.mediaDevices.getUserMedia({
+audio:true
+});
+
+if(!Recognition){
+
+throw new Error(
+"此瀏覽器不支援語音辨識，請使用 Chrome。"
+);
+
+}
+
+const recognition=new Recognition();
+
+recognition.lang="en-US";
+recognition.interimResults=false;
+
+recognition.onstart=()=>{
+
+$("status").textContent=
+"🎤 正在聽你說英文…";
+
+$("micBtn").textContent=
+"🎤 聆聽中…";
+
+};
+
+recognition.onerror=e=>{
+
+$("status").textContent=
+"語音辨識錯誤："+e.error;
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onend=()=>{
+
+$("micBtn").textContent=
+"🎤 按下說英文";
+
+};
+
+recognition.onresult=e=>{
+
+const text=
+e.results[0][0].transcript;
+
+giveFeedback(text);
+
+};
+
+recognition.start();
+
+}catch(error){
+
+$("status").textContent=
+"麥克風錯誤："+error.message;
+
+}
+
+};
+
+function giveFeedback(text){
+
+$("userSaid").textContent=text;
+$("original").textContent=text;
+
+let corrected=
+text.trim().replace(/\s+/g," ");
+
+corrected=
+corrected.charAt(0).toUpperCase()+
+corrected.slice(1);
+
+if(!/[.!?]$/.test(corrected)){
+corrected+=".";
+}
+
+$("correct").textContent=corrected;
+$("natural").textContent=corrected;
+
+$("pronunciation").textContent=
+"已成功辨識整句。若辨識結果和你原本想說的不同，請放慢速度再說一次。";
+
+$("status").textContent=
+"完成！Lina 已收到你的英文。";
+
+if(freeMode){
+
+$("linaEnglish").textContent=
+"That sounds interesting. Can you tell me a little more?";
+
+$("linaChinese").textContent=
+"聽起來很有意思，可以再多告訴我一點嗎？";
+
+}else{
+
+$("linaEnglish").textContent=
+"Good! Try it once more, a little more naturally.";
+
+$("linaChinese").textContent=
+"很好！再說一次，試著更自然一點。";
+
+}
+
+speakLina();
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
