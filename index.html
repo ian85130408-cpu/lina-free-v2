@@ -4,35 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#102a43">
-<meta name="description" content="Lina Free v3 is a free AI English Coach for Windows Chrome and Android Chrome using Web Speech API and speechSynthesis.">
+<meta name="description" content="Lina Free v3.1 is a free AI English Coach for Windows Chrome and Android Chrome using Web Speech API and speechSynthesis.">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/icon.svg">
-<title>Lina Free v3｜AI English Coach</title>
+<title>Lina Free v3.1｜AI English Coach</title>
 <style>
 :root{
   color-scheme:light;
-  --ink:#102a43;
-  --muted:#64748b;
-  --line:#d9e2ec;
+  --ink:#182230;
+  --muted:#667085;
+  --line:#d0d5dd;
   --paper:#ffffff;
-  --soft:#f5f7fb;
-  --teal:#0f766e;
-  --teal-dark:#115e59;
-  --rose:#be3455;
-  --gold:#b7791f;
-  --blue:#2563eb;
-  --shadow:0 18px 50px rgba(15,23,42,.12);
+  --soft:#f8fafc;
+  --teal:#08746f;
+  --teal-dark:#065f5b;
+  --rose:#b4234a;
+  --gold:#ad6f00;
+  --blue:#175cd3;
+  --shadow:0 16px 40px rgba(16,24,40,.10);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   margin:0;
   font-family:Arial,"Microsoft JhengHei","PingFang TC",sans-serif;
-  background:
-    radial-gradient(circle at 12% 0%,rgba(15,118,110,.16),transparent 26rem),
-    radial-gradient(circle at 90% 18%,rgba(190,52,85,.12),transparent 22rem),
-    linear-gradient(180deg,#f8fafc 0%,#eef4f8 100%);
+  background:#f4f7fb;
   color:var(--ink);
 }
 button,input,textarea{font:inherit}
@@ -55,7 +52,7 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
   gap:16px;
   margin-bottom:14px;
 }
-.brand-title{font-size:clamp(24px,4vw,42px);line-height:1.02;margin:0 0 6px;font-weight:900;letter-spacing:0}
+.brand-title{font-size:clamp(24px,4vw,38px);line-height:1.05;margin:0 0 6px;font-weight:900;letter-spacing:0}
 .brand-sub{margin:0;color:var(--muted);line-height:1.6}
 .badge{
   flex:0 0 auto;
@@ -79,44 +76,20 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
   box-shadow:var(--shadow);
 }
 .teacher-panel{overflow:hidden}
-.teacher-stage{
-  position:relative;
-  min-height:550px;
-  padding:18px;
-  display:grid;
-  align-content:end;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.08),rgba(16,42,67,.72)),
-    linear-gradient(135deg,#dbeafe,#f8e7e9 52%,#d7f3ef);
-}
-.lina-avatar{
-  position:absolute;
-  inset:0 0 122px;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  pointer-events:none;
-}
-.lina-avatar img{
-  width:min(86%,430px);
-  max-height:100%;
-  object-fit:contain;
-  filter:drop-shadow(0 25px 35px rgba(16,42,67,.22));
-}
-.teacher-panel.speaking .avatar-mouth{animation:mouthTalk .2s ease-in-out infinite alternate}
-.teacher-panel.speaking .avatar-bust{animation:breath 2.9s ease-in-out infinite}
-.teacher-panel .avatar-eye{transform-origin:center;animation:blink 5.2s infinite}
-.teacher-panel.speaking .avatar-eye{animation:blink 4.4s infinite}
-@keyframes mouthTalk{from{transform:scaleY(.55)}to{transform:scaleY(1.25)}}
-@keyframes breath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.008)}}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}94%,96%{transform:scaleY(.08)}}
+.teacher-stage{position:relative;min-height:560px;padding:18px;display:grid;align-content:end;background:#111827}
+.lina-photo{position:absolute;inset:0;overflow:hidden;background:#111827}
+.lina-photo img{width:100%;height:100%;object-fit:cover;object-position:center top;filter:saturate(.98) contrast(1.02)}
+.lina-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,24,39,.04) 18%,rgba(17,24,39,.52) 72%,rgba(17,24,39,.82) 100%)}
+.teacher-panel.speaking .lina-photo img{animation:photoBreath 2.8s ease-in-out infinite}
+.teacher-panel.listening .lina-photo:after{background:linear-gradient(180deg,rgba(8,116,111,.05) 18%,rgba(8,116,111,.42) 72%,rgba(17,24,39,.82) 100%)}
+@keyframes photoBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
 .lesson-card{
   position:relative;
   z-index:2;
   color:#fff;
   text-shadow:0 1px 2px rgba(0,0,0,.2);
 }
-.eyebrow{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.eyebrow{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;color:#c8f7f2}
 .lina-line{font-size:clamp(24px,4.6vw,40px);line-height:1.14;margin:0 0 9px;font-weight:900;letter-spacing:0}
 .lina-zh{font-size:16px;line-height:1.5;margin:0;color:#eaf2f7}
 .teacher-body{padding:14px 16px 16px}
@@ -135,13 +108,14 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
   margin-top:12px;
 }
 .primary-actions{grid-template-columns:1fr 1fr}
-.secondary-actions{grid-template-columns:1fr 1fr}
+.secondary-actions{grid-template-columns:1fr 1fr 1fr}
 .nav-actions{grid-template-columns:1fr 1fr 1fr}
 .btn-main{background:var(--rose);color:#fff;font-weight:900}
 .btn-demo{background:var(--teal);color:#fff;font-weight:900}
 .btn-soft{background:#eef4f8;color:var(--ink);border-color:var(--line);font-weight:800}
 .btn-blue{background:var(--blue);color:#fff;font-weight:900}
-.btn-gold{background:#fef3c7;color:#78350f;border-color:#f5d78e;font-weight:900}
+.btn-gold{background:#fff7e6;color:#7a4a00;border-color:#f4d08a;font-weight:900}
+.btn-continue{background:#e6f7f5;color:#065f5b;border-color:#a7deda;font-weight:900}
 .work-panel{padding:16px}
 .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .section-title h2{margin:0;font-size:20px}
@@ -176,8 +150,9 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
   min-height:58px;
   line-height:1.35;
 }
-.lesson.active{border-color:var(--ink);background:#102a43;color:#fff}
+.lesson.active{border-color:var(--ink);background:#182230;color:#fff}
 .lesson.locked{background:#f1f5f9;color:#94a3b8}
+.lesson.done:not(.active){border-color:#9ad8d3;background:#ecfdfb}
 .box{
   border:1px solid var(--line);
   border-radius:8px;
@@ -218,6 +193,9 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
 .word.warn{background:#fff7ed;color:#9a3412}
 .word.miss{background:#fee2e2;color:#991b1b}
 .install-note{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.5}
+.flow-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.flow-step{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px;font-size:12px;font-weight:800;color:#667085;text-align:center}
+.flow-step.active{border-color:#08746f;background:#e6f7f5;color:#065f5b}
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
   .teacher-stage{min-height:520px}
@@ -228,8 +206,7 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
   .top{display:block}
   .badge{display:inline-block;margin-top:10px}
   .teacher-stage{min-height:475px;padding:14px}
-  .lina-avatar{inset:0 0 142px}
-  .primary-actions,.secondary-actions,.nav-actions,.lesson-list,.fallback{grid-template-columns:1fr}
+  .primary-actions,.secondary-actions,.nav-actions,.lesson-list,.fallback,.flow-strip{grid-template-columns:1fr}
   .level{min-height:64px}
   .pair{grid-template-columns:1fr;gap:3px}
   .work-panel,.teacher-body{padding:12px}
@@ -240,16 +217,18 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
 <main class="app">
   <header class="top">
     <div>
-      <h1 class="brand-title">Lina Free v3｜AI English Coach</h1>
+      <h1 class="brand-title">Lina Free v3.1｜AI English Coach</h1>
       <p class="brand-sub">完全免費的英文口說練習網站。Windows Chrome 與 Android Chrome 共用同一個網站，保留 Web Speech API 語音辨識與 speechSynthesis 英文語音。</p>
     </div>
-    <div class="badge">Lina Free v3</div>
+    <div class="badge">Lina Free v3.1</div>
   </header>
 
   <div class="layout">
     <section id="teacherPanel" class="panel teacher-panel" aria-label="Lina AI English teacher">
       <div class="teacher-stage">
-        <div class="lina-avatar" id="linaAvatar" aria-hidden="true"></div>
+        <div class="lina-photo" aria-hidden="true">
+          <img src="assets/lina-real-v31.jpg" alt="">
+        </div>
         <div class="lesson-card">
           <div class="eyebrow" id="modeLabel">Guided lesson</div>
           <h2 class="lina-line" id="linaEnglish">Hi, I'm Lina. Let's practice one useful English answer.</h2>
@@ -265,6 +244,13 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
         <div class="secondary-actions">
           <button id="speakBtn" class="btn-soft">聽 Lina 說</button>
           <button id="hintBtn" class="btn-gold">提示我怎麼說</button>
+          <button id="continueBtn" class="btn-continue">繼續對話</button>
+        </div>
+        <div class="flow-strip" aria-label="練習流程">
+          <div class="flow-step active" id="flowDemo">1 示範</div>
+          <div class="flow-step" id="flowRepeat">2 跟讀</div>
+          <div class="flow-step" id="flowCorrect">3 修正</div>
+          <div class="flow-step" id="flowContinue">4 對話</div>
         </div>
         <div class="fallback" aria-label="文字輸入備援">
           <input id="typedInput" autocomplete="off" placeholder="麥克風失敗時，在這裡輸入英文回答">
@@ -329,43 +315,6 @@ button:disabled{cursor:not-allowed;opacity:.55;transform:none}
 </main>
 
 <script>
-const avatarMarkup = `
-<svg viewBox="0 0 520 760" role="img" aria-label="Lina professional digital human avatar">
-  <defs>
-    <linearGradient id="hair" x1="0" x2="1" y1="0" y2="1">
-      <stop stop-color="#111827"/><stop offset=".65" stop-color="#27364a"/><stop offset="1" stop-color="#101827"/>
-    </linearGradient>
-    <linearGradient id="skin" x1="0" x2="1" y1="0" y2="1">
-      <stop stop-color="#f7c7a8"/><stop offset=".55" stop-color="#efb692"/><stop offset="1" stop-color="#d99575"/>
-    </linearGradient>
-    <linearGradient id="suit" x1="0" x2="1" y1="0" y2="1">
-      <stop stop-color="#f8fafc"/><stop offset=".7" stop-color="#dfe8f0"/>
-    </linearGradient>
-  </defs>
-  <g class="avatar-bust">
-    <ellipse cx="260" cy="720" rx="198" ry="34" fill="rgba(16,42,67,.22)"/>
-    <path d="M122 726c7-103 49-170 138-170s131 67 138 170z" fill="url(#suit)"/>
-    <path d="M178 726c10-75 37-122 82-122s72 47 82 122z" fill="#eff6ff"/>
-    <path d="M220 564h80l-7 74c-4 36-62 36-66 0z" fill="url(#skin)"/>
-    <path d="M120 428c-50-142 12-300 140-300s190 158 140 300c-24 69-82 121-140 121s-116-52-140-121z" fill="url(#hair)"/>
-    <path d="M162 315c0-90 38-154 98-154s98 64 98 154c0 108-44 199-98 199s-98-91-98-199z" fill="url(#skin)"/>
-    <path d="M159 329c-22-5-35 12-28 38 5 20 20 36 37 36z" fill="#e8a889"/>
-    <path d="M361 329c22-5 35 12 28 38-5 20-20 36-37 36z" fill="#e8a889"/>
-    <path d="M158 292c53-10 97-35 127-82 15 38 43 65 78 79-6-87-46-151-104-151-60 0-100 63-101 154z" fill="url(#hair)"/>
-    <g class="avatar-eye">
-      <path d="M206 335c15-13 38-13 53 0" fill="none" stroke="#1f2937" stroke-width="9" stroke-linecap="round"/>
-      <path d="M306 335c15-13 38-13 53 0" fill="none" stroke="#1f2937" stroke-width="9" stroke-linecap="round"/>
-    </g>
-    <path d="M262 352c-7 25-12 45-4 50 7 5 18 2 25-3" fill="none" stroke="#ba7b62" stroke-width="6" stroke-linecap="round"/>
-    <path d="M226 435c22 24 69 25 95 0" fill="none" stroke="#8b2f45" stroke-width="7" stroke-linecap="round"/>
-    <ellipse class="avatar-mouth" cx="273" cy="436" rx="27" ry="6" fill="#8b2f45"/>
-    <path d="M196 382c16 13 40 16 61 5" fill="none" stroke="rgba(151,87,68,.28)" stroke-width="8" stroke-linecap="round"/>
-    <path d="M306 387c22 10 44 8 60-6" fill="none" stroke="rgba(151,87,68,.24)" stroke-width="8" stroke-linecap="round"/>
-    <path d="M149 397c-12 55 2 116 32 157-41-28-68-78-78-139-14-88 11-198 75-250 18-15 52-31 84-32-68 39-96 100-113 264z" fill="rgba(17,24,39,.72)"/>
-    <path d="M371 397c12 55-2 116-32 157 41-28 68-78 78-139 14-88-11-198-75-250-18-15-52-31-84-32 68 39 96 100 113 264z" fill="rgba(17,24,39,.78)"/>
-  </g>
-</svg>`;
-
 const beginnerLessons = [
   {title:"機場", question:"Welcome to the airport. What is the first thing you need to do?", zh:"歡迎來到機場。你第一件需要做的事是什麼？", simple:"I need to check in for my flight.", simpleZh:"我需要辦理登機報到。", natural:"First, I need to check in for my flight and drop off my bag.", followUp:"Great. Do you have your passport and booking number ready?"},
   {title:"海關", question:"What will you say if the officer asks the purpose of your visit?", zh:"如果海關問你入境目的，你會怎麼說？", simple:"I am here for a holiday.", simpleZh:"我是來度假的。", natural:"I am here for a short holiday and I will stay for five days.", followUp:"Nice. Where will you stay during your trip?"},
@@ -443,10 +392,9 @@ let levelIndex = 0;
 let lessonIndex = 0;
 let freeMode = false;
 let lastDemoText = "";
+let lastFollowUpText = "";
 let progress = loadProgress();
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-$("linaAvatar").innerHTML = avatarMarkup;
 
 function loadProgress(){
   try{
@@ -473,6 +421,7 @@ function highestCompleted(){
 }
 
 function isLessonUnlocked(level, lesson){
+  if(progress.completed[lessonKey(level, lesson)]) return true;
   if(level === 0 && lesson === 0) return true;
   const flat = level * 20 + lesson;
   const prevLevel = Math.floor((flat - 1) / 20);
@@ -503,9 +452,10 @@ function render(){
   $("lessons").innerHTML = "";
   course[levelIndex].lessons.forEach((lesson,index) => {
     const locked = !isLessonUnlocked(levelIndex,index);
-    const done = progress.completed[lessonKey(levelIndex,index)] ? " ✓" : "";
+    const completed = Boolean(progress.completed[lessonKey(levelIndex,index)]);
+    const done = completed ? " ✓ 已完成" : "";
     const btn = document.createElement("button");
-    btn.className = `lesson ${index===lessonIndex ? "active" : ""} ${locked ? "locked" : ""}`;
+    btn.className = `lesson ${index===lessonIndex ? "active" : ""} ${locked ? "locked" : ""} ${completed ? "done" : ""}`;
     btn.textContent = `${index+1}. ${lesson.title}${done}`;
     btn.disabled = locked;
     btn.onclick = () => { lessonIndex=index; freeMode=false; render(); };
@@ -513,11 +463,13 @@ function render(){
   });
 
   const completed = highestCompleted();
+  const currentDone = Boolean(progress.completed[lessonKey(levelIndex, lessonIndex)]);
   $("progressBar").style.width = `${completed / 80 * 100}%`;
-  $("progressText").textContent = `${course[levelIndex].name}・第 ${lessonIndex+1} / 20 課｜已完成 ${completed} / 80`;
+  $("progressText").textContent = `${course[levelIndex].name}・第 ${lessonIndex+1} / 20 課｜已完成 ${completed} / 80${currentDone ? "｜本課可回看重練" : ""}`;
   $("unlockText").textContent = isLevelUnlocked(3) ? "全部級別可練習" : "逐級學習解鎖";
   $("prevBtn").disabled = levelIndex === 0 && lessonIndex === 0;
   $("nextBtn").disabled = !nextPosition(false);
+  $("completeBtn").textContent = currentDone ? "已完成" : "完成本課";
   setLessonView();
 }
 
@@ -539,6 +491,8 @@ function setLessonView(){
     $("naturalAnswer").textContent = lesson.natural;
   }
   clearFeedback();
+  lastFollowUpText = freeMode ? "I understand. Please add one detail, such as when, where, or why." : lesson.followUp;
+  setFlow("demo");
   $("status").textContent = "正確流程：Lina 提問 → Lina 先示範/提示 → 使用者跟讀 → 語音轉文字 → 修正與基礎發音回饋。";
 }
 
@@ -548,6 +502,12 @@ function clearFeedback(){
   $("naturalVersion").textContent = "—";
   $("pronunciation").textContent = "—";
   $("typedInput").value = "";
+}
+
+function setFlow(step){
+  const map = {demo:"flowDemo", repeat:"flowRepeat", correct:"flowCorrect", continue:"flowContinue"};
+  Object.values(map).forEach((id) => $(id).classList.remove("active"));
+  $(map[step] || "flowDemo").classList.add("active");
 }
 
 function speak(text, after){
@@ -577,6 +537,7 @@ function demoText(){
 function showHintAndSpeak(){
   const lesson = currentLesson();
   lastDemoText = freeMode ? $("naturalAnswer").textContent : lesson.simple;
+  setFlow("demo");
   $("status").textContent = "提示已更新：先看簡單回答、中文翻譯與更自然英文回答；Lina 會朗讀示範。";
   speak(`${$("simpleAnswer").textContent}. ${$("naturalAnswer").textContent}`);
 }
@@ -584,8 +545,10 @@ function showHintAndSpeak(){
 function startDemo(){
   const lesson = currentLesson();
   lastDemoText = freeMode ? $("naturalAnswer").textContent : lesson.simple;
+  setFlow("demo");
   $("status").textContent = "Lina 正在先示範。聽完後，請跟讀簡單回答或自然回答。";
   speak(demoText(), () => {
+    setFlow("repeat");
     $("status").textContent = "現在換你跟讀。按「按下說英文」，或用文字輸入備援。";
   });
 }
@@ -601,15 +564,19 @@ function listen(){
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   recognition.onstart = () => {
+    setFlow("repeat");
+    $("teacherPanel").classList.add("listening");
     $("status").textContent = "正在聽你說英文。請說出提示中的簡單回答或自然回答。";
     $("micBtn").textContent = "聆聽中";
     $("micBtn").disabled = true;
   };
   recognition.onerror = (event) => {
+    $("teacherPanel").classList.remove("listening");
     $("status").textContent = `麥克風或語音辨識失敗：${event.error}。你可以改用文字輸入備援。`;
     $("typedInput").focus();
   };
   recognition.onend = () => {
+    $("teacherPanel").classList.remove("listening");
     $("micBtn").textContent = "按下說英文";
     $("micBtn").disabled = false;
   };
@@ -673,17 +640,20 @@ function giveFeedback(text){
   $("correctVersion").textContent = correct;
   $("naturalVersion").textContent = natural;
   $("pronunciation").innerHTML = pronunciationFeedback(text, correct);
+  setFlow("correct");
   if(freeMode){
     const branch = branchResponse(text);
+    lastFollowUpText = branch.response;
     $("linaEnglish").textContent = branch.response;
     $("linaChinese").textContent = branch.zh;
-    $("status").textContent = "自由對話情境分支已回應。這不是生成式 AI，而是免費前端分支練習。";
-    speak(branch.response);
+    $("status").textContent = "已完成修正。Lina 會接下一句，聽完後繼續回答。";
+    speak(branch.response, () => setFlow("continue"));
   }else{
+    lastFollowUpText = lesson.followUp;
     $("linaEnglish").textContent = lesson.followUp;
     $("linaChinese").textContent = "很好，現在進入下一個追問。你也可以完成本課或再練一次。";
-    $("status").textContent = "完成一輪：你剛剛說的 → 正確版本 → 更自然版本 → 基礎發音回饋。";
-    speak(lesson.followUp);
+    $("status").textContent = "完成一輪：修正已完成。Lina 會追問，請聽完後繼續回答。";
+    speak(lesson.followUp, () => setFlow("continue"));
   }
 }
 
@@ -721,13 +691,20 @@ function goToPosition(pos){
 function completeCurrentLesson(){
   progress.completed[lessonKey(levelIndex,lessonIndex)] = true;
   saveProgress();
-  $("status").textContent = "本課已完成。下一課已解鎖，可以繼續練習。";
+  $("status").textContent = "本課已完成。下一課已解鎖；你也可以回到本課自由重練。";
   render();
+}
+
+function continueConversation(){
+  setFlow("continue");
+  $("status").textContent = "繼續對話：聽 Lina 的追問，然後按「按下說英文」回答。";
+  speak(lastFollowUpText || $("linaEnglish").textContent);
 }
 
 $("demoBtn").onclick = startDemo;
 $("speakBtn").onclick = () => speak($("linaEnglish").textContent);
 $("hintBtn").onclick = showHintAndSpeak;
+$("continueBtn").onclick = continueConversation;
 $("micBtn").onclick = listen;
 $("typedBtn").onclick = () => {
   const value = $("typedInput").value.trim();
@@ -735,6 +712,7 @@ $("typedBtn").onclick = () => {
     $("status").textContent = "請先輸入一句英文，再送出文字備援。";
     return;
   }
+  setFlow("repeat");
   giveFeedback(value);
 };
 $("typedInput").addEventListener("keydown", (event) => {

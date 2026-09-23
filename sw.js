@@ -1,10 +1,10 @@
-const CACHE_NAME = "lina-free-v3-2026-09-23";
+const CACHE_NAME = "lina-free-v31-2026-09-23";
 const APP_SHELL = [
   "./",
   "index.html",
   "manifest.json",
   "assets/icon.svg",
-  "assets/lina-avatar.svg"
+  "assets/lina-real-v31.jpg"
 ];
 
 self.addEventListener("install", (event) => {
