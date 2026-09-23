@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lina Free v3 icon">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#0f766e"/>
+      <stop offset=".55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#be3455"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="104" fill="url(#g)"/>
+  <circle cx="256" cy="218" r="104" fill="#f3c2a2"/>
+  <path d="M142 231c6-105 58-165 114-165s108 60 114 165c-26-29-57-51-93-82-28 44-70 70-135 82z" fill="#111827"/>
+  <path d="M138 436c12-90 55-139 118-139s106 49 118 139z" fill="#f8fafc"/>
+  <path d="M217 237c20 18 58 18 78 0" fill="none" stroke="#8b2f45" stroke-width="15" stroke-linecap="round"/>
+  <text x="256" y="472" fill="#fff" font-size="58" font-family="Arial, sans-serif" font-weight="900" text-anchor="middle">v3</text>
+</svg>

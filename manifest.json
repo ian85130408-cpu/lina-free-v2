@@ -1,0 +1,21 @@
+{
+  "name": "Lina Free v3｜AI English Coach",
+  "short_name": "Lina Free v3",
+  "description": "完全免費的英文口說練習網站，支援 Windows Chrome 與 Android Chrome。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#102a43",
+  "lang": "zh-Hant",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
